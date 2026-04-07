@@ -1,0 +1,16 @@
+{
+  "name": "tourista-turbo",
+  "private": true,
+  "packageManager": "pnpm@10.6.2",
+  "scripts": {
+    "dev": "turbo run dev test:watch --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "type:check": "turbo run type:check",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch --parallel"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0"
+  }
+}
