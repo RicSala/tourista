@@ -95,10 +95,10 @@
 
 - [Development Setup](contributing/development-setup.md)
 - [Architecture](contributing/architecture.md)
-- [Testing (WIP)](contributing/testing.md)
+<!-- - [Testing (WIP)](contributing/testing.md)
 - [Code Style (WIP)](contributing/code-style.md)
-- [Pull Requests (WIP)](contributing/pull-requests.md)
+- [Pull Requests (WIP)](contributing/pull-requests.md) -->
 
 ## Next features
 
-- [Next features](next-features.md)
+- [Next features](next-features/next-features.md)
