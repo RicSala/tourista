@@ -1,6 +1,6 @@
 "use client";
 import { useContext } from "react";
-import { ShowcaseContext } from "./layout";
+import { ShowcaseContext } from "./showcaseContext";
 
 export function useShowcaseSettings() {
   const ctx = useContext(ShowcaseContext);

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTour } from "tourista";
-import { CARD_THEMES, type CardTheme } from "../layout";
+import { CARD_THEMES, type CardTheme } from "../cardThemes";
 import { useShowcaseSettings } from "../useShowcaseSettings";
 
 export default function CustomCardsPage() {

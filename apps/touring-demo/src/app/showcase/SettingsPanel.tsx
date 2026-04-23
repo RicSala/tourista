@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { CardTheme, CARD_THEMES } from "./layout";
+import { type CardTheme, CARD_THEMES } from "./cardThemes";
 import { useShowcaseSettings } from "./useShowcaseSettings";
 
 // Floating settings panel component
