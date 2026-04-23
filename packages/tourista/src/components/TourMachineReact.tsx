@@ -32,6 +32,7 @@ interface TourMachineReactProps {
   overlayStyles?: OverlayStyles;
 }
 
+// TODO: is this ok out here?
 // Global actor reference - only exists when tour is active
 export let tourActor: TourActor | null = null;
 export let tourMachine: TTourMachine | null = null;
@@ -48,6 +49,7 @@ export const TourMachineCore: React.FC<TourMachineReactProps> = ({
 }) => {
   const pathname = usePathname();
   const router = useRouter();
+  // TODO: does usememo do anything here and in next use?
   const overlayStyles = useMemo(() => {
     return {
       ...STYLE_DEFAULT,
@@ -63,6 +65,7 @@ export const TourMachineCore: React.FC<TourMachineReactProps> = ({
   }, [cardPositioningProp]);
 
   const { tourConfig, handleSkip, handleComplete } = useTourContext() as {
+    //TODO: do we have better ways to keep this type safe?
     tourConfig: TourConfig; // We KNOW tourConfig is not null here (otherwise this wouldn't render)
     handleSkip: () => void;
     handleComplete: () => void;
@@ -91,15 +94,16 @@ export const TourMachineCore: React.FC<TourMachineReactProps> = ({
 
     if (!tourMachine || tourMachine.config.id !== tourConfig.id) {
       const machineConfig = generateTourMachine<TourContext, BaseTourEvent>(
-        tourConfig
+        tourConfig,
       );
       tourMachine = new StateMachine<TourContext, BaseTourEvent, string>(
-        machineConfig
+        machineConfig,
       );
     }
 
-    // Create and start the actor
-    tourActor = new Actor(tourMachine);
+    // Pass a stable id so we do not rely on the machine package's
+    // crypto.randomUUID() fallback in browser environments.
+    tourActor = new Actor(tourMachine, `tour-${tourConfig.id}`);
 
     // Subscribe to check for completion or skip
     const unsubscribe = tourActor.subscribe((snapshot) => {
@@ -180,7 +184,7 @@ export const TourMachineCore: React.FC<TourMachineReactProps> = ({
   const snapshot = useSyncExternalStore(
     (callback) => tourActor?.subscribe(callback) || (() => {}),
     () => tourActor?.getSnapshot() || null,
-    () => null
+    () => null,
   );
 
   // Auto-navigation logic
@@ -237,6 +241,7 @@ export const TourMachineCore: React.FC<TourMachineReactProps> = ({
   );
 };
 
+//TODO: should we dynamicall import instead? does it have any impact?
 // the same as core but get is active from the context and conditionally render the core
 // have the same props as core and pass all of them to the core
 export const TourMachine = (props: TourMachineReactProps) => {

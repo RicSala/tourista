@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useTour } from "tourista";
-import { tourHelpers } from "../tourConfig";
+import { tourConfig } from "../tourConfig";
 
 export default function ReviewPage() {
-  const { isActive, currentState, sendEvent, currentStepIndex, totalSteps } =
-    useTour("optimized-tour");
+  const { isActive, currentState, tasks, currentStepIndex, totalSteps } =
+    useTour(tourConfig);
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,11 +17,7 @@ export default function ReviewPage() {
   const handleSubmitReview = async () => {
     // Check if we're in the tour's submit review pending state
     if (currentState === "step6_submit_review_pending") {
-      const reviewTask = tourHelpers.getAsyncTask("step6_submit_review");
-      if (!reviewTask) return;
-
-      // Send start event to move to processing
-      sendEvent({ type: reviewTask.events.start });
+      tasks.step6_submit_review.start();
       setIsSubmitting(true);
       setSubmitSuccess(false);
       setSubmitError(false);
@@ -41,7 +37,7 @@ export default function ReviewPage() {
 
         setIsSubmitting(false);
         setSubmitSuccess(true);
-        sendEvent({ type: reviewTask.events.success });
+        tasks.step6_submit_review.success();
 
         // Clear success message after 3 seconds
         setTimeout(() => setSubmitSuccess(false), 3000);
@@ -49,7 +45,7 @@ export default function ReviewPage() {
         setIsSubmitting(false);
         setSubmitError(true);
         console.error("Review submission error:", error);
-        sendEvent({ type: reviewTask.events.failed });
+        tasks.step6_submit_review.fail();
 
         // Clear error message after 3 seconds
         setTimeout(() => setSubmitError(false), 3000);

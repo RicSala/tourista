@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useTour } from "tourista";
-import { tourHelpers } from "../tourConfig";
+import { showcaseTourConfig } from "../tourConfig";
 
 export default function AsyncTasksPage() {
-  const { startTour, isActive, sendEvent } = useTour("showcase-tour");
+  const { startTour, isActive, tasks } = useTour(showcaseTourConfig);
 
   const [taskState, setTaskState] = useState<
     "idle" | "loading" | "success" | "error"
@@ -14,13 +14,7 @@ export default function AsyncTasksPage() {
   const [progress, setProgress] = useState(0);
 
   const handleDemoAction = async () => {
-    // Check if we're in the tour's async demo pending state
-    const asyncTask = tourHelpers.getAsyncTask("async_demo");
-
-    // Send start event to move to processing
-    if (asyncTask) {
-      sendEvent({ type: asyncTask.events.start });
-    }
+    tasks.async_demo.start();
 
     setTaskState("loading");
     setProgress(0);
@@ -52,19 +46,12 @@ export default function AsyncTasksPage() {
       setProgress(100);
       setTaskState("success");
 
-      // Send success event (using captured asyncTask from start)
-      if (asyncTask) {
-        console.log("Sending success event:", asyncTask.events.success);
-        sendEvent({ type: asyncTask.events.success });
-      }
+      tasks.async_demo.success();
     } catch {
       clearInterval(interval);
       setTaskState("error");
 
-      // Send failed event (using captured asyncTask from start)
-      if (asyncTask) {
-        sendEvent({ type: asyncTask.events.failed });
-      }
+      tasks.async_demo.fail();
 
       // Reset after delay
       setTimeout(() => {

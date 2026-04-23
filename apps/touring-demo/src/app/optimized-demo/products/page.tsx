@@ -3,17 +3,17 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useTour } from "tourista";
-import { tourHelpers } from "../tourConfig";
+import { tourConfig } from "../tourConfig";
 
 export default function ProductsPage() {
   const {
     startTour,
     isActive,
     currentState,
-    sendEvent,
+    tasks,
     currentStepIndex,
     totalSteps,
-  } = useTour("optimized-tour");
+  } = useTour(tourConfig);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [cartSuccess, setCartSuccess] = useState(false);
   const [cartError, setCartError] = useState(false);
@@ -28,11 +28,7 @@ export default function ProductsPage() {
   const handleAddToCart = async (product: (typeof products)[0]) => {
     // Check if we're in the tour's add to cart pending state
     if (currentState === "step3_add_to_cart_pending") {
-      const cartTask = tourHelpers.getAsyncTask("step3_add_to_cart");
-      if (!cartTask) return;
-
-      // Send start event to move to processing
-      sendEvent({ type: cartTask.events.start });
+      tasks.step3_add_to_cart.start();
       setIsAddingToCart(true);
       setCartSuccess(false);
       setCartError(false);
@@ -52,7 +48,7 @@ export default function ProductsPage() {
 
         setIsAddingToCart(false);
         setCartSuccess(true);
-        sendEvent({ type: cartTask.events.success });
+        tasks.step3_add_to_cart.success();
 
         // Clear success message after 3 seconds
         setTimeout(() => setCartSuccess(false), 3000);
@@ -60,7 +56,7 @@ export default function ProductsPage() {
         setIsAddingToCart(false);
         setCartError(true);
         console.error("Cart error:", error);
-        sendEvent({ type: cartTask.events.failed });
+        tasks.step3_add_to_cart.fail();
 
         // Clear error message after 3 seconds
         setTimeout(() => setCartError(false), 3000);

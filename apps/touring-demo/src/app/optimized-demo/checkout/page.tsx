@@ -1,30 +1,26 @@
 "use client";
 
-import { tourHelpers } from "@/app/optimized-demo/tourConfig";
 import Link from "next/link";
 import { useState } from "react";
 import { useTour } from "tourista";
+import { tourConfig } from "../tourConfig";
 
 export default function CheckoutPage() {
-  const tour = useTour("optimized-tour");
+  const tour = useTour(tourConfig);
   const [processingError, setProcessingError] = useState<string | null>(null);
 
   const handlePayment = async () => {
     if (tour?.currentState === "step5_payment_pending") {
-      const paymentTask = tourHelpers.getAsyncTask("step5_payment");
-      if (!paymentTask) return;
-
-      console.log("event::", paymentTask.events.start);
-      tour.sendEvent({ type: paymentTask.events.start });
+      tour.tasks.step5_payment.start();
       setProcessingError(null);
 
       // Simulate payment processing
       try {
         await mockProcessPayment();
-        tour.sendEvent({ type: paymentTask.events.success });
-      } catch (error) {
+        tour.tasks.step5_payment.success();
+      } catch {
         setProcessingError("Payment failed. Please try again.");
-        tour.sendEvent({ type: paymentTask.events.failed });
+        tour.tasks.step5_payment.fail();
       }
     }
   };

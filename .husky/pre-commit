@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "[husky] Running monorepo pre-commit checks..."
+
+echo "[husky] Library typecheck"
+pnpm --filter tourista type:check || {
+  echo "[husky] tourista typecheck failed."
+  exit 1
+}
+
+echo "[husky] Demo lint"
+pnpm --filter touring-demo lint || {
+  echo "[husky] touring-demo lint failed."
+  exit 1
+}
+
+echo "[husky] Checks passed."

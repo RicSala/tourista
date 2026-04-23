@@ -7,6 +7,31 @@ import {
   TourStep,
 } from "../types";
 
+type AsyncStepIds<T extends TourConfig> = T["steps"][number] extends infer Step
+  ? Step extends { type: "async"; id: infer Id }
+    ? Id
+    : never
+  : never;
+
+type AsyncTaskInfoForConfig<T extends TourConfig> = {
+  taskId: string;
+  hasProcessing: boolean;
+  states: {
+    pending: string;
+    processing?: string;
+    success: string;
+  };
+  events: {
+    start: ExtractCustomEvents<T>["type"];
+    success: ExtractCustomEvents<T>["type"];
+    failed: ExtractCustomEvents<T>["type"];
+  };
+};
+
+type AsyncTaskMap<T extends TourConfig> = {
+  [K in AsyncStepIds<T>]: AsyncTaskInfoForConfig<T>;
+};
+
 // Global timer reference for auto-advance
 let globalTimerRef: any = null;
 
@@ -808,33 +833,25 @@ export function addTourIdGuards<
 
 // Create a typed helper for a specific tour config
 export function createTourHelpers<const T extends TourConfig>(config: T) {
-  // Extract only IDs of steps that have async tasks
-  type AsyncStepIds = T["steps"][number] extends infer Step
-    ? Step extends { type: "async"; id: infer Id }
-      ? Id
-      : never
-    : never;
-
   // Extract all possible states for this config
   type States = ExtractStates<T>;
+  type TaskMap = AsyncTaskMap<T>;
+
+  const tasks = Object.fromEntries(
+    config.steps
+      .filter(
+        (step): step is Extract<T["steps"][number], { type: "async" }> =>
+          step.type === "async",
+      )
+      .map((step) => [step.id, getAsyncTaskInfo(step)]),
+  ) as TaskMap;
 
   return {
-    getAsyncTask: (stepId: AsyncStepIds) => {
-      const step = config.steps.find((s) => s.id === stepId);
-      if (!step) throw new Error(`Step ${stepId} not found`);
-      return getAsyncTaskInfo(step) as unknown as {
-        taskId: string;
-        states: {
-          pending: string;
-          processing: string;
-          success: string;
-        };
-        events: {
-          start: ExtractCustomEvents<T>["type"];
-          success: ExtractCustomEvents<T>["type"];
-          failed: ExtractCustomEvents<T>["type"];
-        };
-      };
+    tasks,
+    getAsyncTask: (stepId: AsyncStepIds<T>) => {
+      const task = tasks[stepId as keyof TaskMap];
+      if (!task) throw new Error(`Step ${stepId} not found`);
+      return task;
     },
     // Count actual UI steps (async counts as 1)
     getTotalSteps: () => config.steps.length,
@@ -871,6 +888,7 @@ export function createTourHelpers<const T extends TourConfig>(config: T) {
 
 export const createMockHelpers = () => {
   return {
+    tasks: {},
     getAsyncTask: () => null,
     getTotalSteps: () => 0,
     getStepIndex: () => 0,

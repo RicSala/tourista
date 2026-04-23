@@ -16,6 +16,7 @@ interface TourContextType {
   handleSkip: () => void;
   handleComplete: () => void;
   isActive: boolean;
+  tours: TourConfig[];
   tourConfig?: TourConfig;
 }
 
@@ -68,11 +69,12 @@ export const TourProvider: React.FC<TourProviderProps> = ({
       startTour,
       endTour,
       isActive,
+      tours,
       tourConfig,
       handleSkip,
       handleComplete,
     }),
-    [startTour, endTour, isActive, tourConfig, handleSkip, handleComplete],
+    [startTour, endTour, isActive, tours, tourConfig, handleSkip, handleComplete],
   );
 
   return <TourContext.Provider value={value}>{children}</TourContext.Provider>;
